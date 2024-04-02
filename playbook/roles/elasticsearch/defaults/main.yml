@@ -1,0 +1,22 @@
+---
+vm: 
+  max_map_count: 262144
+  swappiness: 1
+
+pam_limits:
+  nofile: 65535
+  nproc: 4096
+  memlock: unlimited
+
+etc_path: /etc/elasticsearch
+share_path: /usr/share/elasticsearch
+service_path: /etc/systemd/system/elasticsearch.service.d
+
+certs_path: "{{ etc_path }}/certs"
+transport_cert: "elastic-certificates"
+http_cert: "elastic-certificates"
+
+ca_path: "{{ certs_path }}/{{ elastic_stack.ca_name }}.crt"
+
+owner: root
+group: elasticsearch

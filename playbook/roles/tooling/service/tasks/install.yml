@@ -1,0 +1,15 @@
+---
+- name: "Install {{ service_name }} {{ service_version }}"
+  package: 
+    name: "{{ service_name }}={{ service_version }}"
+    state: present
+    update_cache: true
+
+- name: "Enable service {{ service_name }}"
+  service:
+    name: "{{ service_name }}"
+    enabled: true
+
+- name: Force systemd to reload daemon
+  systemd:
+    daemon_reload: true

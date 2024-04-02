@@ -1,0 +1,37 @@
+---
+- name: Delete auto-generated certificates
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items: 
+    - "{{ certs_path }}/transport.p12"
+    - "{{ certs_path }}/http.p12"
+    - "{{ certs_path }}/http_ca.crt"
+
+- name: Get existing values in keystore
+  shell: "{{ share_path }}/bin/elasticsearch-keystore list"
+  register: result
+  changed_when: no
+
+- name: Remove autoconfiguration.password_hash from keystore if present
+  shell: "{{ share_path }}/bin/elasticsearch-keystore remove autoconfiguration.password_hash --silent"
+  when: '"autoconfiguration.password_hash" in result.stdout_lines'
+
+- name: Remove keystore.seed from keystore if present
+  shell: "{{ share_path }}/bin/elasticsearch-keystore remove keystore.seed --silent"
+  when: '"keystore.seed" in result.stdout_lines'
+
+- name: Remove xpack.security.transport.ssl.keystore.secure_password from keystore if present
+  shell: "{{ share_path }}/bin/elasticsearch-keystore remove xpack.security.transport.ssl.keystore.secure_password --silent"
+  when: '"xpack.security.transport.ssl.keystore.secure_password" in result.stdout_lines'
+
+- name: Remove xpack.security.transport.ssl.truststore.secure_password from keystore if present
+  shell: "{{ share_path }}/bin/elasticsearch-keystore remove xpack.security.transport.ssl.truststore.secure_password --silent"
+  when: '"xpack.security.transport.ssl.truststore.secure_password" in result.stdout_lines'
+
+- name: Remove xpack.security.http.ssl.keystore.secure_password from keystore if present
+  shell: "{{ share_path }}/bin/elasticsearch-keystore remove xpack.security.http.ssl.keystore.secure_password --silent"
+  when: '"xpack.security.http.ssl.keystore.secure_password" in result.stdout_lines'
+
+- name: "Upgrade keystore"
+  shell: "{{ share_path }}/bin/elasticsearch-keystore upgrade"

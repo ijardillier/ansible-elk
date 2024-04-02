@@ -1,0 +1,14 @@
+---
+- name: Create images directory
+  file:
+    path: "{{ libvirt_images_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0711
+
+- name: Download base image
+  get_url:
+    url: "{{ base_image_url }}"
+    dest: "{{ libvirt_images_dir }}/{{ base_image_name }}"
+    checksum: "sha256:{{ base_image_sha }}"

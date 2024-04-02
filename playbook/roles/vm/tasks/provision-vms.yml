@@ -1,0 +1,131 @@
+---
+- name: Get VMs list
+  virt:
+    command: list_vms
+  register: existing_vms
+  changed_when: no
+
+- name: Create VMs directory
+  file:
+    path: "{{ libvirt_vms_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: "Get default KVM bridge name"
+  shell:
+    cmd: >
+        virsh net-info {{ vms.network_name }} | grep Bridge | awk {' print $2 '}
+  register: vm_network_bridge     
+  changed_when: no   
+
+- name: "Get {{ vms.network_name }} dump"
+  shell: virsh net-dumpxml {{ vms.network_name }} > /tmp/virsh_net_{{ vms.network_name }}.xml
+  changed_when: no
+
+- name: Check if domain is already configured
+  shell: 
+    cmd: "cat /tmp/virsh_net_{{ vms.network_name }}.xml | grep {{ vms.domain_name }}"
+  register: domain_already_configured
+  changed_when: no
+
+- name: "Add domain to network {{ vms.network_name }}"
+  blockinfile: 
+    path: "/tmp/virsh_net_{{ vms.network_name }}.xml"
+    backup: yes
+    insertafter: '<bridge(.*)/>'
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    block: |
+      <domain name='{{ vms.domain_name }}' localOnly='yes' />
+  when: domain_already_configured.stdout_lines | length == 0
+
+- name: "Update network {{ vms.network_name }} configuration"
+  shell: virsh net-define /tmp/virsh_net_{{ vms.network_name }}.xml
+  when: domain_already_configured.stdout_lines | length == 0
+  
+- name: "Destroy network {{ vms.network_name }}"
+  shell: virsh net-destroy {{ vms.network_name }}
+  when: domain_already_configured.stdout_lines | length == 0
+
+- name: "Start network {{ vms.network_name }} with new configuration"
+  shell: virsh net-start {{ vms.network_name }}
+  when: domain_already_configured.stdout_lines | length == 0
+  notify: restart_libvirtd
+
+- include_tasks: "_create-vm.yml"   
+  with_items: "{{ groups['elasticsearch'] }}"
+  vars: 
+    current_vm_specs: "{{ vms.elasticsearch | selectattr('name', 'match', hostvars[current_vm_name]['data_tiers']) | first }}"
+  loop_control:
+    loop_var: current_vm_name
+    label: "{{ current_vm_name }}"
+  when: 
+    - groups['elasticsearch'] is defined
+    - current_vm_name not in existing_vms.list_vms
+
+- include_tasks: "_create-vm.yml"   
+  with_items: "{{ groups['logstash'] }}"
+  vars: 
+    current_vm_specs: "{{ vms.other | selectattr('name', 'match', 'logstash') | first }}"
+  loop_control:
+    loop_var: current_vm_name
+    label: "{{ current_vm_name }}"
+  when: 
+    - groups['logstash'] is defined
+    - current_vm_name not in existing_vms.list_vms
+
+- include_tasks: "_create-vm.yml"   
+  with_items: "{{ groups['kibana'] }}"
+  vars: 
+    current_vm_specs: "{{ vms.other | selectattr('name', 'match', 'kibana') | first }}"
+  loop_control:
+    loop_var: current_vm_name
+    label: "{{ current_vm_name }}"
+  when: 
+    - groups['kibana'] is defined
+    - current_vm_name not in existing_vms.list_vms
+
+- include_tasks: "_create-vm.yml"   
+  with_items: "{{ groups['fleet_server'] }}"
+  vars: 
+    current_vm_specs: "{{ vms.other | selectattr('name', 'match', 'fleet-server') | first }}"
+  loop_control:
+    loop_var: current_vm_name
+    label: "{{ current_vm_name }}"
+  when: 
+    - groups['fleet_server'] is defined
+    - current_vm_name not in existing_vms.list_vms
+
+- include_tasks: "_create-vm.yml"   
+  with_items: "{{ groups['apm_server'] }}"
+  vars: 
+    current_vm_specs: "{{ vms.other | selectattr('name', 'match', 'apm-server') | first }}"
+  loop_control:
+    loop_var: current_vm_name
+    label: "{{ current_vm_name }}"
+  when: 
+    - groups['apm_server'] is defined
+    - current_vm_name not in existing_vms.list_vms
+
+- include_tasks: "_create-vm.yml"   
+  with_items: "{{ groups['enterprise_search'] }}"
+  vars: 
+    current_vm_specs: "{{ vms.other | selectattr('name', 'match', 'enterprise-search') | first }}"
+  loop_control:
+    loop_var: current_vm_name
+    label: "{{ current_vm_name }}"
+  when: 
+    - groups['enterprise_search'] is defined
+    - current_vm_name not in existing_vms.list_vms
+
+- name: Get VMs details
+  shell:
+    cmd: >
+        virsh net-dhcp-leases {{ vms.network_name }}
+  register: vms_details     
+  changed_when: no   
+
+- name: Debug (VM details)
+  debug: msg="{{ vms_details.stdout_lines }}"
+  changed_when: no

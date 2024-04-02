@@ -1,0 +1,29 @@
+---
+- name: Check if CPU supports hardware virtualization
+  shell: 
+    cmd: egrep -c '(vmx|svm)' /proc/cpuinfo
+  register: result
+  changed_when: no
+
+- name: Ensure CPU supports hardware virtualization
+  assert:
+    that:
+      - result.stdout is defined
+      - result.stdout != '0'
+
+- name: Install latest version of "cpu-checker"
+  package:
+    name: cpu-checker
+    state: latest
+
+- name: Check if host supports KVM acceleration 
+  shell: 
+    cmd: kvm-ok
+  register: result
+  changed_when: no
+
+- name: Ensure the host supports KVM acceleration 
+  assert:
+    that:
+      - result.rc is defined
+      - result.rc == 0

@@ -1,0 +1,5 @@
+---
+- name: "Remove the repository definition to /etc/apt/sources.list.d/elastic-{{ elastic_stack.repository }}.list"
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/{{ elastic_stack.repository }}/apt stable main"
+    state: absent

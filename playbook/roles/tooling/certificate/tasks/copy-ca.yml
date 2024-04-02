@@ -1,0 +1,5 @@
+---
+- name: "Extract /tmp/{{ elastic_stack.ca_name }}.zip"
+  unarchive:
+    src: "/tmp/{{ elastic_stack.ca_name }}.zip"
+    dest: /tmp

@@ -1,0 +1,11 @@
+---
+base_image_variant: ubuntu22.04
+base_image_name: jammy-server-cloudimg-amd64.img
+base_image_url: https://cloud-images.ubuntu.com/jammy/current/{{ base_image_name }}
+base_image_sha: b3c31422c3b9aa1cb97fb5974e2229cb9cc8cac0ea33fda122ce3c01147d70d3
+
+libvirt_images_dir: "/var/lib/libvirt/images"
+libvirt_vms_dir: "/var/lib/libvirt/vms"
+
+ssh_key_file: ~/.ssh/id_rsa
+ssh_key_passphrase: ""

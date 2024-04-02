@@ -1,0 +1,9 @@
+---
+- name: "Create the elasticsearch config file"
+  template: 
+    src: templates/elasticsearch.yml.j2
+    dest: "{{ etc_path }}/elasticsearch.yml"
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+    mode: '0660'
+  notify: restart_elasticsearch

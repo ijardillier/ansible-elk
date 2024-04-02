@@ -1,0 +1,28 @@
+---
+- name: Setting current machine IP
+  set_fact: current_ip="{{ hostvars[ansible_host]['ansible_default_ipv4']['address'] }}"
+
+- name: "Check if /tmp/{{ transport_cert }}.zip already exists"
+  stat:
+    path: "/tmp/{{ transport_cert }}.zip"
+  register: result
+
+- name: Generate TLS certificate
+  shell: "{{ share_path }}/bin/elasticsearch-certutil cert --pem --ca-cert {{ ca_path }} --ca-key /tmp/ca/ca.key \
+      --ca-pass {{ elastic_stack.ca_pass }} --dns localhost,{{ ansible_host }} --ip 127.0.0.1,{{ current_ip }} --name {{ transport_cert }} --out /tmp/{{ transport_cert }}.zip --silent"
+  when: result is not undefined and result.stat.exists == false
+
+- name: "Extract /tmp/{{ transport_cert }}.zip"
+  unarchive:
+    remote_src: true
+    src: "/tmp/{{ transport_cert }}.zip"
+    dest: /tmp
+
+- name: "Copy {{ transport_cert }} crt and key from /tmp to {{ certs_path }}"
+  copy:
+    remote_src: true
+    src: "/tmp/{{ transport_cert }}/"
+    dest: "{{ certs_path }}"
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+  notify: restart_elasticsearch

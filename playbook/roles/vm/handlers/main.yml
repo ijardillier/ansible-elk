@@ -1,0 +1,18 @@
+---
+- name: restart_libvirtd_check_existing
+  service_facts:
+  register: result
+  listen: "restart_libvirtd"
+
+- name: Debug (Check libvirtd status)
+  debug:
+    var: result.services["libvirtd.service"]
+
+- name: restart_libvirtd_if_exists_and_running
+  service: 
+    name: libvirtd
+    state: restarted
+  when: 
+    - result.services["libvirtd.service"] is defined 
+    - result.services["libvirtd.service"].state == "running"
+  listen: "restart_libvirtd"

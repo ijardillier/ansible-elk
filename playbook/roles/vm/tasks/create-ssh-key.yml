@@ -1,0 +1,11 @@
+---
+- name: Check if ssh keypair already exists
+  stat:
+    path: "{{ ssh_key_file }}"
+  register: result
+
+- name: Create ssh keypair
+  shell: 
+    cmd: ssh-keygen -t rsa -b 4096 -f {{ ssh_key_file }} -N "{{ ssh_key_passphrase }}" -q <<< n >/dev/null 2>&1
+    executable: /bin/bash
+  when: result is not undefined and result.stat.exists == false

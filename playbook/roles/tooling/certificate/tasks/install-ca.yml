@@ -1,0 +1,23 @@
+---
+- name: Install ca package
+  package:
+    name: ca-certificates
+    state: latest
+
+- name: "Install unzip"
+  package: 
+    name: "unzip"
+    state: latest
+
+- name: "Unzip /tmp/{{ elastic_stack.ca_name }}.zip"
+  shell: "unzip -o /tmp/{{ elastic_stack.ca_name }}.zip -d /tmp"
+
+- name: "Copy ca.crt from /tmp to /usr/local/share/ca-certificates"
+  copy:
+    remote_src: true
+    src: "/tmp/ca/ca.crt"
+    dest: "/usr/local/share/ca-certificates/{{ elastic_stack.ca_name }}.crt"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  notify: update_trusted_ca

@@ -1,0 +1,59 @@
+# ---------------------------------- Cluster -----------------------------------
+
+cluster.name: "{{ cluster_name }}"
+
+# ------------------------------------ Node ------------------------------------
+
+node.name: "{{ hostvars[ansible_host]['node_name'] }}"
+node.roles: [ master, data_content, data_{{ data_tiers }}, ingest, transform ]
+
+# ----------------------------------- Paths ------------------------------------
+
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+
+# ----------------------------------- Memory -----------------------------------
+
+bootstrap.memory_lock: true
+
+# ---------------------------------- Network -----------------------------------
+
+network.bind_host: "_global_"
+network.publish_host: "{{ ansible_host }}"
+
+http.host: 0.0.0.0 # Allow HTTP API connections from anywhere
+http.port: 9200
+
+transport.host: 0.0.0.0 # Allow other nodes to join the cluster from anywhere
+
+# --------------------------------- Discovery ----------------------------------
+
+discovery.seed_hosts: {% for host in groups['elasticsearch'] %}  
+    - {{ host -}}
+{% endfor %}
+
+cluster.initial_master_nodes: {% for host in groups['elasticsearch'] %}  
+    - {{ hostvars[host]['node_name'] -}}
+{% endfor %}
+
+# ---------------------------------- Security -----------------------------------
+
+xpack.security.enabled: true
+xpack.security.enrollment.enabled: false
+
+# Enable encryption for HTTP API client connections, such as Kibana, Logstash, and Agents
+xpack.security.http.ssl:
+  enabled: true
+  #keystore.path: "certs/{{ http_cert }}.p12"
+  certificate_authorities: certs/{{ elastic_stack.ca_name }}.crt
+  certificate: certs/{{ http_cert }}.crt
+  key: certs/{{ http_cert }}.key
+
+# Enable encryption and mutual authentication between cluster nodes
+xpack.security.transport.ssl:
+  enabled: true
+  #keystore.path: "certs/{{ transport_cert }}.p12"
+  #truststore.path: "certs/{{ transport_cert }}.p12"  
+  certificate_authorities: certs/{{ elastic_stack.ca_name }}.crt
+  certificate: certs/{{ transport_cert }}.crt
+  key: certs/{{ transport_cert }}.key

@@ -1,0 +1,24 @@
+---
+- name: restart_elasticsearch_check_existing
+  service_facts:
+  register: result
+  listen: "restart_elasticsearch"
+
+- name: restart_elasticsearch_if_exists_and_running
+  service: 
+    name: elasticsearch
+    state: restarted
+  when: 
+    - ansible_facts.services["elasticsearch.service"] is defined 
+    - ansible_facts.services["elasticsearch.service"].state == "running"
+  listen: "restart_elasticsearch"
+
+- name: restart_elasticsearch_if_exists_and_failed
+  service: 
+    name: elasticsearch
+    state: restarted
+  when: 
+    - ansible_facts.services["elasticsearch.service"] is defined 
+    - ansible_facts.services["elasticsearch.service"].state == "stopped"
+    - ansible_facts.services["elasticsearch.service"].status == "failed"
+  listen: "restart_elasticsearch"

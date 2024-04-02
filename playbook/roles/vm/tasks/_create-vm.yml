@@ -1,0 +1,107 @@
+---
+- name: Setting current VM directory
+  set_fact: current_vm_dir="{{ libvirt_vms_dir }}/{{ current_vm_name }}"
+
+- name: "Create VM directory for {{ current_vm_name }}"
+  file:
+    path: "{{ current_vm_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: "Debug ({{ current_vm_name }} VM specs)"
+  debug: msg="{{ current_vm_specs }}"
+  changed_when: no
+
+- name: "Create and resize the image for {{ current_vm_name }}"
+  shell: qemu-img create -b {{ libvirt_images_dir }}/{{ base_image_name }} -F qcow2 -f qcow2 {{ current_vm_dir }}/{{ current_vm_name }}.qcow2 {{ current_vm_specs['disk'] }}
+
+- name: Get ssh public key
+  shell: cat {{ ssh_key_file }}.pub
+  register: ssh_key_pub
+  changed_when: no
+
+- name: "Create cloud_init.cfg template for {{ current_vm_name }}"
+  template:
+    src: templates/cloud_init.cfg.j2
+    dest: "{{ current_vm_dir }}/cloud_init.cfg"
+    mode: '0644'
+    
+- name: "Create cloud-config image for {{ current_vm_name }}"
+  shell:
+    cmd: >
+        cloud-localds
+        {{ current_vm_dir }}/cloud_config.img
+        {{ current_vm_dir }}/cloud_init.cfg
+
+- name: "Create VM for {{ current_vm_name }}"
+  shell:
+    cmd: >
+        virt-install
+        --noautoconsole
+        --name {{ current_vm_name }}
+        --memory {{ current_vm_specs['mem']|default('512') }}
+        --vcpus  {{ current_vm_specs['cpu']|default('1') }}
+        --disk {{ current_vm_dir }}/{{ current_vm_name }}.qcow2,device=disk,bus=virtio
+        --disk {{ current_vm_dir }}/cloud_config.img,device=cdrom
+        --os-variant {{ base_image_variant }}
+        --virt-type kvm
+        --graphics none
+        --network bridge={{ vm_network_bridge.stdout }},model=virtio
+        --import
+
+- name: "Ensure VM {{ current_vm_name }} is started"
+  virt:
+    name: "{{ current_vm_name }}"
+    state: running
+  register: vm_start_results
+  until: "vm_start_results is success"
+  retries: 15
+  delay: 2
+
+- name: "Debug ({{ current_vm_name }} VM is started)"
+  debug: msg="{{ vm_start_results }}"
+  changed_when: no
+
+- name: "Get {{ current_vm_name }} VM MAC address"
+  shell: virsh dumpxml {{ current_vm_name }} | awk -F\' '/mac address/ {print $2}'
+  register: current_vm_mac
+  changed_when: no
+
+- name: "Debug ({{ current_vm_name }} VM MAC address)"
+  debug: msg="{{ current_vm_mac.stdout }}"
+  changed_when: no
+
+- name: "Get {{ current_vm_name }}  VM IP address"
+  shell: grep -B1 {{ current_vm_mac.stdout }} /var/lib/libvirt/dnsmasq/{{ vm_network_bridge.stdout }}.status | head -n 1 | awk '{print $2}' | sed -e s/\"//g -e s/,//
+  register: current_vm_ip
+  until: current_vm_ip.stdout_lines | length > 0
+  retries: 15
+  delay: 2
+  changed_when: no
+
+- name: "Debug ({{ current_vm_name }} VM IP address)"
+  debug: msg="{{ current_vm_ip.stdout }}"
+  changed_when: no
+
+- name: Pause to wait for cloud init to end
+  pause:
+    seconds: 30
+
+- name: "Reboot VM {{ current_vm_name }}"
+  shell: virsh reboot {{ current_vm_name }} 
+  notify: restart_libvirtd
+
+- name: "Ensure VM {{ current_vm_name }} is started"
+  virt:
+    name: "{{ current_vm_name }}"
+    state: running
+  register: vm_start_results
+  until: "vm_start_results is success"
+  retries: 15
+  delay: 2
+
+- name: Pause to wait for VM to start
+  pause:
+    seconds: 30

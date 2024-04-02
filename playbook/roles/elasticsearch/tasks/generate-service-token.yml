@@ -1,0 +1,30 @@
+---
+- name: "Delete service token for {{ service_name }} if already exists"
+  uri:
+    url: https://localhost:9200/_security/service/elastic/{{ service_name }}/credential/token/{{ service_name }}-token
+    method: DELETE
+    status_code: 200,404
+    url_username: elastic
+    url_password: "{{ account_password.elastic }}"
+    validate_certs: false
+    headers:
+      Content-Type: "application/json"
+
+- name: "Create service token for {{ service_name }} if already exists"
+  uri:
+    url: https://localhost:9200/_security/service/elastic/{{ service_name }}/credential/token/{{ service_name }}-token
+    method: POST
+    status_code: 200,201
+    url_username: elastic
+    url_password: "{{ account_password.elastic }}"
+    validate_certs: false
+    headers:
+      Content-Type: "application/json"
+  register: result
+
+- name: "Service token for {{ service_name }}"
+  debug:
+    var: result.json.token.value
+
+- set_fact:
+    generated_token: "{{ result.json.token.value }}"

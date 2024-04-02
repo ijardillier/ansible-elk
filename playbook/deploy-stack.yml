@@ -1,0 +1,48 @@
+---
+- name: Collect facts for tags needing them (gathering facts is not done when using tags)
+  hosts: all
+  tags: [cfg, certs] 
+  tasks:
+    - setup:
+        gather_timeout: 10 
+
+- name: "Prepare hosts"
+  hosts: all,!hypervisor
+  become: true
+  tags: [os]
+  roles:    
+    - { role: tooling/repository, mode: "remove-elastic_{{ ansible_os_family}}" }
+    - { role: tooling/os, mode: "full-upgrade_{{ ansible_os_family}}" }
+
+- name: "Deploy elasticsearch nodes"
+  hosts: elasticsearch
+  become: true
+  tags: [es]
+  roles:
+    - { role: elasticsearch, mode: apply-prerequisites }
+    - { role: tooling/repository, mode: "add-elastic_{{ ansible_os_family }}" }
+    - { role: tooling/service, mode: install, service_name: elasticsearch, service_version: "{{ elastic_stack.version }}" }
+    - { role: elasticsearch, mode: service-override }
+    - { role: tooling/repository, mode: "remove-elastic_{{ ansible_os_family }}" }
+    - { role: elasticsearch, mode: set-configuration, tags: cfg }
+    - { role: elasticsearch, mode: generate-ca, when: "ansible_host in groups['elasticsearch'][0]", tags: certs }
+    - { role: tooling/certificate, mode: copy-ca, tags: certs }
+    - { role: elasticsearch, mode: deploy-ca, tags: certs }
+    - { role: elasticsearch, mode: clean-auto-generated-certs, tags: certs }
+    - { role: elasticsearch, mode: generate-certs, tags: certs }
+    - { role: tooling/service, mode: start, service_name: elasticsearch }
+    - { role: elasticsearch, mode: wait-for-start }
+
+# - name: "Install CA on Hypervisor"
+#   hosts: hypervisor
+#   become: true
+#   tags: [ca]
+#   roles:
+#     - { role: tooling/certificate, mode: install-ca, tags: certs }
+
+- name: "Configure passwords"
+  hosts: elasticsearch[0]
+  become: true
+  tags: [pwd]
+  roles:
+    - { role: elasticsearch, mode: reset-elastic-password }

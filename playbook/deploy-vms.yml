@@ -1,0 +1,18 @@
+---
+- name: "Install KVM on Hypervisor"
+  hosts: hypervisor
+  become: true
+  tags: [kvm]
+  roles:
+    - { role: kvm, mode: check-prerequisites }
+    - { role: kvm, mode: install }
+
+- name: "Provision VM on Hypervisor"
+  hosts: hypervisor
+  become: true
+  tags: [vm]
+  roles:
+    - { role: vm, mode: create-ssh-key }
+    - { role: vm, mode: download-base-image }
+    - { role: vm, mode: provision-vms }
+    - { role: vm, mode: start-vms }

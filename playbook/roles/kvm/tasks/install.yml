@@ -1,0 +1,54 @@
+---
+- name: Install latest version of KVM (and QEMU) System components
+  package:
+    name:
+    - qemu 
+    - qemu-kvm 
+    - libvirt-daemon-system
+    - libvirt-clients
+    - libnss-libvirt
+    - bridge-utils
+    - virt-manager
+    - virtinst
+    - cloud-image-utils
+    - guestfs-tools
+    - openssh-client
+    state: latest
+
+- name: Start and enable service "libvirtd"
+  service:
+    name: libvirtd
+    state: started
+    enabled: true
+
+- name: Check if the KVM modules are loaded
+  shell: 
+    cmd: lsmod | grep -i kvm | awk '{print}'
+  register: result
+  changed_when: no
+
+- name: Ensure the KVM modules are loaded
+  assert:
+    that:
+      - result.stdout_lines is defined
+      - result.stdout_lines|length == 2
+
+- name: Add the KVM users to needed groups
+  user:
+    name: "{{ item }}"
+    groups: libvirt,kvm
+    append: yes
+  loop: "{{ kvm.users }}"
+    
+- name: Check if nssswitch is well configured
+  shell: 
+    cmd: cat /etc/nsswitch.conf | grep hosts
+  register: result
+  changed_when: no
+
+- name: Update config of nsswitch to enable VM name resolution
+  replace:
+    path: /etc/nsswitch.conf
+    regexp:  '(\s+)dns mymachines(\s+.*)?$'
+    replace: '\1libvirt libvirt_guest dns mymachines\2'
+  when: '"libvirt" not in result.stdout'

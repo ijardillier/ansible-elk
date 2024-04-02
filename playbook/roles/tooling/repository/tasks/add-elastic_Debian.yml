@@ -1,0 +1,20 @@
+---
+- name: Install latest version of apt-transport-https
+  package: 
+    name: apt-transport-https
+    state: latest
+
+- name: Add Elastic repository
+  block:
+    - name: Download and install the public signing key
+      shell: wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | gpg --batch --yes --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+
+    # - name: Download and install the public signing key
+    #   get_url:
+    #     url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    #     dest: /usr/share/keyrings/elasticsearch-keyring.gpg
+
+    - name: "Save the repository definition to /etc/apt/sources.list.d/elastic-{{ elastic_stack.repository }}.list"
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/{{ elastic_stack.repository }}/apt stable main"
+        state: present

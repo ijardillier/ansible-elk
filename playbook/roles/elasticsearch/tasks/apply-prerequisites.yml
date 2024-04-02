@@ -1,0 +1,67 @@
+---
+#
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/system-config.html
+#
+
+# Configuring system settings
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/setting-system-settings.html
+# Use of the systemd method. It will be done later in the service installation.
+
+# Disable swappping (if not using bootstrap.memory_lock: true)
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration-memory.html
+# Use of bootstrap.memory_lock method. It will be done later in the elasticsearch.yml configuration file.
+
+# Other solution: WM Swappiness
+
+# - name: "Configure vm.swappiness in sysctl"
+#   sysctl:
+#     name: vm.swappiness
+#     value: "{{ vm.swappiness }}"
+#     state: present
+
+# Only for .zip or .tar.gz
+
+# - name: Set soft memlock limits
+#   community.general.pam_limits:
+#     domain: "{{ group }}"
+#     limit_type: "soft"
+#     limit_item: memlock
+#     value: "{{ pam_limits.memlock }}"
+
+# - name: Set hard memlock limits
+#   community.general.pam_limits:
+#     domain: "{{ group }}"
+#     limit_type: "hard"
+#     limit_item: memlock
+#     value: "{{ pam_limits.memlock }}"
+
+# File Descriptors 
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/file-descriptors.html
+
+# Only for .zip or .tar.gz
+
+# - name: Set nofile limits
+#   community.general.pam_limits:
+#     domain: "{{ group }}"
+#     limit_type: "-"
+#     limit_item: nofile
+#     value: "{{ pam_limits.nofile }}"
+
+# Virtual memory
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html
+
+- name: "Configure vm.max_map_count in sysctl"
+  sysctl:
+    name: vm.max_map_count
+    value: "{{ vm.max_map_count }}"
+    state: present
+
+# Number of threads
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/max-number-of-threads.html
+
+- name: Set nproc limits
+  community.general.pam_limits:
+    domain: "{{ group }}"
+    limit_type: "-"
+    limit_item: nproc
+    value: "{{ pam_limits.nproc }}"

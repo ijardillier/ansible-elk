@@ -1,0 +1,11 @@
+---
+elastic_stack:
+  repository: 8.x
+  version: 8.9.1
+  ca_name: "elastic-stack-ca"
+  ca_pass: "changeme"
+
+cluster_name: elastic_dev
+
+account_password:
+  elastic: "changeme"

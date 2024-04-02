@@ -1,0 +1,5 @@
+---
+- name: Stop service "elasticsearch"
+  service:
+    name: elasticsearch
+    state: stopped

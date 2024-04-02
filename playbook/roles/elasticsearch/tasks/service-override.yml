@@ -1,0 +1,21 @@
+---
+- name: "Create {{ service_path }} folder"
+  file:
+    path: "{{ service_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: "Override the elasticsearch service config"
+  copy: 
+    src: files/systemd/override.conf
+    dest: "{{ service_path }}/override.conf"
+    owner: root
+    group: root
+    mode: '0640'
+  notify: restart_elasticsearch
+
+- name: Force systemd to reload daemon
+  systemd:
+    daemon_reload: true

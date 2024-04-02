@@ -1,0 +1,19 @@
+---
+kvm:
+  users: [ingrid]
+
+vms:
+  root_pass: root
+  default_user: ubuntu
+  default_pass: ubuntu
+  network_name: default
+  domain_name: domain.local
+  elasticsearch:
+    - name: hot
+      disk: 20G
+      mem: 4096
+      cpu: 2
+    - name: warm
+      disk: 30G
+      mem: 4096
+      cpu: 2
