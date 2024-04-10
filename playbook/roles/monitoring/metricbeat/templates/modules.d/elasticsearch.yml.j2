@@ -1,0 +1,12 @@
+{% if ansible_host in groups['elasticsearch'] %}
+- module: elasticsearch
+  enabled: true
+  xpack.enabled: true
+  period: 10s
+  hosts: ["https://localhost:9200"]
+  username: remote_monitoring_user
+  password: "{{ account_password.remote_monitoring_user }}"
+  ssl.enabled: true
+  ssl.certificate_authorities: "{{ ca_cert_path }}"
+  ssl.verification_mode: "certificate"
+{% endif %}

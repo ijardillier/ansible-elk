@@ -1,0 +1,45 @@
+# Module: system
+# Docs: https://www.elastic.co/guide/en/beats/metricbeat/7.x/metricbeat-module-system.html
+
+- module: system
+  metricsets: 
+    - cpu
+    - diskio
+    - load
+    - memory
+    - network
+    - process   
+    #- core
+    #- entropy
+    #- process_summary
+    #- socket_summary
+    #- socket
+    - service
+    #- users
+  period: 30s
+  process.include_top_n:
+    by_cpu: 5      # include top 5 processes by CPU
+    by_memory: 5   # include top 5 processes by memory
+  service.pattern_filter: ["ssh*"]
+  # Configure the mount point of the host’s filesystem for use in monitoring a host from within a container
+  system.hostfs: "/hostfs"
+
+- module: system
+  metricsets:
+    - filesystem
+    - fsstat  
+  period: 1m
+  processors:
+  - drop_event.when.regexp:
+      system.filesystem.mount_point: '^/(sys|cgroup|proc|dev|etc|host|lib|snap)($|/)'
+
+- module: system
+  period: 15m
+  metricsets:
+    - uptime
+
+# - module: system
+#   period: 5m
+#   metricsets:
+#     - raid
+#   raid.mount_point: '/'

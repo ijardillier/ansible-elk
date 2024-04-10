@@ -1,0 +1,23 @@
+---
+- name: restart_metricbeat_check_existing
+  service_facts:
+  listen: "restart_metricbeat"
+
+- name: restart_metricbeat_if_exists_and_running
+  service: 
+    name: metricbeat
+    state: restarted
+  when: 
+    - ansible_facts.services["metricbeat.service"] is defined 
+    - ansible_facts.services["metricbeat.service"].state == "running"
+  listen: "restart_metricbeat"
+
+- name: restart_metricbeat_if_exists_and_failed
+  service: 
+    name: metricbeat
+    state: restarted
+  when: 
+    - ansible_facts.services["metricbeat.service"] is defined 
+    - ansible_facts.services["metricbeat.service"].state == "stopped"
+    - ansible_facts.services["metricbeat.service"].status == "failed"
+  listen: "restart_metricbeat"

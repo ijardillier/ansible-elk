@@ -1,0 +1,10 @@
+---
+etc_path: /etc/metricbeat
+share_path: /usr/share/metricbeat
+
+certs_path: "{{ etc_path }}/certs"
+
+ca_cert_path: "{{ certs_path }}/{{ elastic_stack.ca_name }}.crt"
+
+owner: root
+group: root

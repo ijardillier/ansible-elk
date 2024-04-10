@@ -1,0 +1,23 @@
+---
+- name: restart_filebeat_check_existing
+  service_facts:
+  listen: "restart_filebeat"
+
+- name: restart_filebeat_if_exists_and_running
+  service: 
+    name: filebeat
+    state: restarted
+  when: 
+    - ansible_facts.services["filebeat.service"] is defined 
+    - ansible_facts.services["filebeat.service"].state == "running"
+  listen: "restart_filebeat"
+
+- name: restart_filebeat_if_exists_and_failed
+  service: 
+    name: filebeat
+    state: restarted
+  when: 
+    - ansible_facts.services["filebeat.service"] is defined 
+    - ansible_facts.services["filebeat.service"].state == "stopped"
+    - ansible_facts.services["filebeat.service"].status == "failed"
+  listen: "restart_filebeat"

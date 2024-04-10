@@ -47,6 +47,7 @@
   roles:
     - { role: elasticsearch, mode: reset-elastic-password, tags: es }
     - { role: elasticsearch, mode: set-password, username: "kibana_system", password: "{{ account_password.kibana_system }}", tags: kbn }
+    - { role: elasticsearch, mode: set-password, username: "remote_monitoring_user", password: "{{ account_password.remote_monitoring_user }}", tags: mon }
 
 - name: "Deploy kibana"
   hosts: kibana
@@ -61,3 +62,20 @@
     - { role: kibana, mode: deploy-ca, tags: certs }
     - { role: tooling/service, mode: start, service_name: kibana }
     - { role: kibana, mode: wait-for-start }
+
+- name: "Deploy monitoring"
+  hosts: all,!hypervisor
+  become: true
+  tags: [mon]
+  roles:    
+    - { role: tooling/repository, mode: "add-elastic_{{ ansible_os_family }}" }
+    - { role: tooling/service, mode: install, service_name: filebeat, service_version: "{{ elastic_stack.version }}" }
+    - { role: tooling/service, mode: install, service_name: metricbeat, service_version: "{{ elastic_stack.version }}" }
+    - { role: tooling/repository, mode: "remove-elastic_{{ ansible_os_family }}" }
+    - { role: monitoring/filebeat, mode: set-configuration, tags: cfg }
+    - { role: monitoring/metricbeat, mode: set-configuration, tags: cfg }
+    - { role: tooling/certificate, mode: extract-ca, tags: certs }
+    - { role: monitoring/filebeat, mode: deploy-ca, tags: certs }
+    - { role: monitoring/metricbeat, mode: deploy-ca, tags: certs }
+    - { role: tooling/service, mode: start, service_name: filebeat }
+    - { role: tooling/service, mode: start, service_name: metricbeat }

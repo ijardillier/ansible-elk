@@ -1,0 +1,25 @@
+# Module: kibana
+# Docs: https://www.elastic.co/guide/en/beats/filebeat/main/filebeat-module-kibana.html
+
+{% if ansible_host in groups['kibana'] %}
+
+- module: kibana
+  # Server logs
+  log:
+    enabled: true
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    var.paths: 
+      - "/var/log/kibana/kibana.log"
+
+  # Audit logs
+  audit:
+    enabled: true
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    var.paths: 
+      - "/var/log/kibana/audit.log"
+
+{% endif %}

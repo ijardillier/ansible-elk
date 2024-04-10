@@ -10,3 +10,4 @@ cluster_name: elastic_dev
 account_password:
   elastic: "changeme"
   kibana_system: "changeme"
+  remote_monitoring_user: "changeme"

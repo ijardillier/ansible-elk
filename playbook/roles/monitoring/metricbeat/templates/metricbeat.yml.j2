@@ -1,0 +1,59 @@
+######################## Metricbeat Configuration ############################
+
+# ========================== Metricbeat global options ===========================
+
+metricbeat.config:
+  modules:
+    enabled: true
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: true
+    reload.period: 10s
+
+# ================================== General ===================================
+
+name: "{{ ansible_host }}"
+
+timestamp.precision: microsecond
+
+# ================================= Processors =================================
+
+processors:
+- add_host_metadata: ~
+- add_locale:
+    format: offset
+
+# ================================== Outputs ===================================
+
+output.elasticsearch: 
+  hosts: {% for host in groups['elasticsearch'] %}  
+  {% if hostvars[host]['data_tiers'] == 'hot' %}
+  - {{ host | regex_replace('^(.*)$', '"https://\\1:9200"') -}}
+  {%- endif -%}
+  {%- endfor -%} 
+  username: elastic
+  password: "{{ account_password.elastic }}"
+  ssl.certificate_authorities: "{{ ca_cert_path }}"
+
+# ================================== Logging ===================================
+
+logging.level: info
+logging.json: false
+logging.metrics.enabled: false
+logging.ecs: true;
+logging.to_files: true
+logging.files:
+  path: /var/log/metricbeat
+  name: metricbeat
+  keepfiles: 7
+  permissions: 0640
+
+# ============================= X-Pack Monitoring ==============================
+
+monitoring:
+   enabled: false
+
+# =============================== HTTP Endpoint ================================
+
+http.enabled: true
+http.host : "0.0.0.0"
+http.port: 5067

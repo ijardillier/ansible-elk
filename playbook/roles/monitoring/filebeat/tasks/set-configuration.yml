@@ -1,0 +1,53 @@
+---
+- name: "Create the filebeat config file"
+  template: 
+    src: templates/filebeat.yml.j2
+    dest: "{{ etc_path }}/filebeat.yml"
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+    mode: '0640'
+  notify: restart_filebeat
+
+- name: Get existing filebeat config files for modules
+  find:
+    paths: "{{ etc_path }}/modules.d"
+    patterns: '*.yml'
+  register: files_to_delete
+
+- name: Delete existing filebeat config files for modules
+  file:
+    path: "{{ etc_path }}/modules.d"
+    state: absent
+  with_items: "{{ files_to_delete.files }}"
+
+- name: Copy filebeat config files for modules
+  copy:
+    src: files/modules.d/
+    dest: "{{ etc_path }}/modules.d/"
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+    mode: '0640'
+
+- set_fact: 
+    modules_templates_path: "{{ role_path }}/templates/modules.d"
+
+- name: Get config templates files for modules
+  find:
+    paths: "{{ modules_templates_path }}"
+    patterns: '*.yml.j2'
+  delegate_to: 127.0.0.1
+  become: false
+  register: modules_templates_files
+
+- set_fact: 
+    modules_templates: "{{ modules_templates_files.files | map(attribute='path') | map('replace', modules_templates_path, '') | list }}"
+
+- name: "Create the config files for modules from templates"
+  template: 
+    src: templates/modules.d/{{ item }}
+    dest: "{{ etc_path }}/modules.d/{{ item | replace('.j2', '') }}"
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+    mode: '0640'
+  with_items: "{{ modules_templates }}"
+  when: modules_templates is not undefined

@@ -1,0 +1,17 @@
+---
+- name: "Create certs folder"
+  file:
+    path: "{{ certs_path }}"
+    state: directory
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+    mode: 0750
+
+- name: "Copy ca.crt from /tmp on controller to {{ ca_cert_path }}"
+  copy:
+    src: "/tmp/{{ elastic_stack.ca_name }}/ca/ca.crt"
+    dest: "{{ ca_cert_path }}"
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+  notify: restart_metricbeat
+
