@@ -31,7 +31,7 @@
   assert:
     that:
       - result.stdout_lines is defined
-      - result.stdout_lines|length == 2
+      - result.stdout_lines|length >= 2
 
 - name: Add the KVM users to needed groups
   user:

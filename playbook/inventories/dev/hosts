@@ -6,3 +6,6 @@ es01 node_name=es-hot-01 data_tiers=hot ansible_user=ubuntu ansible_host_key_che
 es02 node_name=es-hot-02 data_tiers=hot ansible_user=ubuntu ansible_host_key_checking=false
 es11 node_name=es-warm-01 data_tiers=warm ansible_user=ubuntu ansible_host_key_checking=false
 es12 node_name=es-warm-02 data_tiers=warm ansible_user=ubuntu ansible_host_key_checking=false
+
+[kibana]
+kbn01 ansible_user=ubuntu ansible_host_key_checking=false

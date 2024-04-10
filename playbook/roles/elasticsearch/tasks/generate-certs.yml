@@ -6,11 +6,17 @@
   stat:
     path: "/tmp/{{ transport_cert }}.zip"
   register: result
+  changed_when: no
 
 - name: Generate TLS certificate
-  shell: "{{ share_path }}/bin/elasticsearch-certutil cert --pem --ca-cert {{ ca_path }} --ca-key /tmp/ca/ca.key \
+  shell: "{{ share_path }}/bin/elasticsearch-certutil cert --pem --ca-cert {{ ca_cert_path }} --ca-key {{ ca_key_path }} \
       --ca-pass {{ elastic_stack.ca_pass }} --dns localhost,{{ ansible_host }} --ip 127.0.0.1,{{ current_ip }} --name {{ transport_cert }} --out /tmp/{{ transport_cert }}.zip --silent"
   when: result is not undefined and result.stat.exists == false
+
+- name: Install latest version of unzip
+  package:
+    name: unzip
+    state: latest
 
 - name: "Extract /tmp/{{ transport_cert }}.zip"
   unarchive:

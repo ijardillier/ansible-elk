@@ -1,0 +1,19 @@
+---
+- name: "Create {{ elastic_stack.ca_name }} directory in /tmp on controller"
+  file:
+    path: "/tmp/{{ elastic_stack.ca_name }}"
+    state: directory
+  delegate_to: 127.0.0.1
+
+- name: Install latest version of unzip on controller
+  package:
+    name: unzip
+    state: latest
+  delegate_to: 127.0.0.1
+
+- name: "Extract /tmp/{{ elastic_stack.ca_name }}.zip on controller"
+  unarchive:
+    remote_src: true
+    src: "/tmp/{{ elastic_stack.ca_name }}.zip"
+    dest: "/tmp/{{ elastic_stack.ca_name }}"
+  delegate_to: 127.0.0.1

@@ -17,3 +17,8 @@ vms:
       disk: 30G
       mem: 4096
       cpu: 2
+  other:
+    - name: kibana
+      disk: 10G
+      mem: 1024
+      cpu: 1

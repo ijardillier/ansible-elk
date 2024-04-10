@@ -1,5 +1,5 @@
 ---
-- name: "Create elasticsearch certs folder"
+- name: "Create kibana certs folder"
   file:
     path: "{{ certs_path }}"
     state: directory
@@ -13,12 +13,4 @@
     dest: "{{ ca_cert_path }}"
     owner: "{{ owner }}"
     group: "{{ group }}"
-  notify: restart_elasticsearch
-
-- name: "Copy ca.key from /tmp on controller to {{ ca_key_path }}"
-  copy:
-    src: "/tmp/{{ elastic_stack.ca_name }}/ca/ca.key"
-    dest: "{{ ca_key_path }}"
-    owner: "{{ owner }}"
-    group: "{{ group }}"
-  notify: restart_elasticsearch
+  notify: restart_kibana

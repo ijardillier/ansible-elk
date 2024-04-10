@@ -16,7 +16,8 @@ certs_path: "{{ etc_path }}/certs"
 transport_cert: "elastic-certificates"
 http_cert: "elastic-certificates"
 
-ca_path: "{{ certs_path }}/{{ elastic_stack.ca_name }}.crt"
+ca_cert_path: "{{ certs_path }}/{{ elastic_stack.ca_name }}.crt"
+ca_key_path: "{{ certs_path }}/{{ elastic_stack.ca_name }}.key"
 
 owner: root
 group: elasticsearch

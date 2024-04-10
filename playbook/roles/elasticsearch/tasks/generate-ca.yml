@@ -3,6 +3,7 @@
   stat:
     path: "/tmp/{{ elastic_stack.ca_name }}.zip"
   register: result
+  changed_when: no
 
 - name: "Generate CA {{ elastic_stack.ca_name }}"
   shell: "{{ share_path }}/bin/elasticsearch-certutil ca --pem --out /tmp/{{ elastic_stack.ca_name }}.zip --pass {{ elastic_stack.ca_pass }} --silent"
@@ -11,5 +12,5 @@
 - name: Copy CA to controller
   fetch: 
     src: "/tmp/{{ elastic_stack.ca_name }}.zip"
-    dest: /tmp/
+    dest: "/tmp/"
     flat: true

@@ -28,6 +28,7 @@ The purpose of this Ansible playbook is to:
     - [Setting up user authentication](#setting-up-user-authentication)
   - [Configuration](#configuration)
     - [How to configure Elasticsearch](#how-to-configure-elasticsearch)
+    - [How to configure Kibana](#how-to-configure-kibana)
   - [Using a newer stack version](#using-a-newer-stack-version)
 
 ## Requirements
@@ -46,6 +47,7 @@ A new graphical tool is available: "Virtual machines manager", which allows you 
 
 By default, the stack exposes the following ports:
 * 9200: Elasticsearch HTTP
+* 5601: Kibana
 
 ## Usage
 
@@ -67,15 +69,15 @@ For example, if KVM and prerequisites are already installed, and you just need t
 
 The playbook can be executed with the following method:
 
-  ansible-playbook playbook/deploy-stack.yml -i playbook/inventories/dev/hosts
+  ansible-playbook playbook/deploy-stack.yml -i playbook/inventories/dev/hosts --ask-become-pass
 
 To deploy only some parts of this playbook, you can use associated tags:
 
-  ansible-playbook playbook/deploy-stack.yml -i playbook/inventories/dev/hosts --tags <my-tag>
+  ansible-playbook playbook/deploy-stack.yml -i playbook/inventories/dev/hosts --ask-become-pass --tags <my-tag>
 
 For example, if you just need Elasticsearch nodes, you can use:
 
-  ansible-playbook playbook/deploy-stack.yml -i playbook/inventories/dev/hosts --tags es
+  ansible-playbook playbook/deploy-stack.yml -i playbook/inventories/dev/hosts --ask-become-pass --tags es
 
 ## Initial setup
 
@@ -86,24 +88,33 @@ The stack is pre-configured with the following **privileged** bootstrap user:
 * user: *elastic*
 * account_password: *changeme*
 
-This is done by resetting the ELASTIC_PASSWORD on first node.
+This is done by resetting the elastic password on first node.
+
+Since v8 of Elastic stack, components won't work with this user, so we have to configure the unprivileged built-in users.
+
+The stack automatically configure the following builtin-users:
+
+* user: *kibana_system*
+* account_password: *changeme*
+
+The passwords are defined in the dev inventory all.yml file of group_vars. **Don't forget to change them before you run the docker compose for the first time**.
 
 ## Configuration
 
-> Configuration is not dynamically reloaded, you will need to restart individual components after any configuration change.
-
 ### How to configure Elasticsearch
 
-The Elasticsearch configuration is stored in `elasticsearch/config/elasticsearch.yml`.
+The Elasticsearch configuration is deployed with `elasticsearch.yml` j2 template in the elasticsearch role.
 
-You can also specify the options you want to override by setting environment variables inside the Compose file.
+You can change any option you want by setting it directly in this file or by changing variable value.
+
+### How to configure Kibana
+
+The Kibana configuration is deployed with `kibana.yml` j2 template in the kibana role.
+
+You can change any option you want by setting it directly in this file or by changing variable value.
 
 ## Using a newer stack version
 
-To use a different Elastic Stack version than the one currently available in the repository, simply change the `elastic_stack` number inside the `groupvars/all.yml` file, and redeploy the stack with:
+To use a different Elastic Stack version than the one currently available in the repository, simply change the `elastic_stack` number inside the `groupvars/all.yml` file of the dev inveotory, and redeploy the stack.
 
-> Always pay attention to the [upgrade instructions][upgrade] for each individual component before performing a stack upgrade.
-
-[elk-stack]: https://www.elastic.co/elk-stack
-
-[upgrade]: https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-upgrade.html
+Fo major updates, don't forget to also change repository variable.

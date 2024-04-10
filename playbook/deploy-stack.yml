@@ -26,7 +26,7 @@
     - { role: tooling/repository, mode: "remove-elastic_{{ ansible_os_family }}" }
     - { role: elasticsearch, mode: set-configuration, tags: cfg }
     - { role: elasticsearch, mode: generate-ca, when: "ansible_host in groups['elasticsearch'][0]", tags: certs }
-    - { role: tooling/certificate, mode: copy-ca, tags: certs }
+    - { role: tooling/certificate, mode: extract-ca, tags: certs }
     - { role: elasticsearch, mode: deploy-ca, tags: certs }
     - { role: elasticsearch, mode: clean-auto-generated-certs, tags: certs }
     - { role: elasticsearch, mode: generate-certs, tags: certs }
@@ -45,4 +45,19 @@
   become: true
   tags: [pwd]
   roles:
-    - { role: elasticsearch, mode: reset-elastic-password }
+    - { role: elasticsearch, mode: reset-elastic-password, tags: es }
+    - { role: elasticsearch, mode: set-password, username: "kibana_system", password: "{{ account_password.kibana_system }}", tags: kbn }
+
+- name: "Deploy kibana"
+  hosts: kibana
+  become: true
+  tags: [kbn]
+  roles:
+    - { role: tooling/repository, mode: "add-elastic_{{ ansible_os_family }}" }
+    - { role: tooling/service, mode: install, service_name: kibana, service_version: "{{ elastic_stack.version }}" }
+    - { role: tooling/repository, mode: "remove-elastic_{{ ansible_os_family }}" }
+    - { role: kibana, mode: set-configuration, tags: cfg }
+    - { role: tooling/certificate, mode: extract-ca, tags: certs }
+    - { role: kibana, mode: deploy-ca, tags: certs }
+    - { role: tooling/service, mode: start, service_name: kibana }
+    - { role: kibana, mode: wait-for-start }

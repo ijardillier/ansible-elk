@@ -1,0 +1,14 @@
+---
+etc_path: /etc/kibana
+share_path: /usr/share/kibana
+
+certs_path: "{{ etc_path }}/certs"
+
+ca_cert_path: "{{ certs_path }}/{{ elastic_stack.ca_name }}.crt"
+
+owner: root
+group: kibana
+
+security_encryptionKey: cccb93bfad885f795824230543c6bd6c
+encryptedSavedObjects_encryptionKey: dc3bfa3b97a605d4b07a4fbddfd63029
+reporting_encryptionKey: 3072aa993391749a7cfd4db97f9df7ca

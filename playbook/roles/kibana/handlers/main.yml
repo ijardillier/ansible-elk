@@ -1,0 +1,23 @@
+---
+- name: restart_kibana_check_existing
+  service_facts:
+  listen: "restart_kibana"
+
+- name: restart_kibana_if_exists_and_running
+  service: 
+    name: kibana
+    state: restarted
+  when: 
+    - ansible_facts.services["kibana.service"] is defined 
+    - ansible_facts.services["kibana.service"].state == "running"
+  listen: "restart_kibana"
+
+- name: restart_kibana_if_exists_and_failed
+  service: 
+    name: kibana
+    state: restarted
+  when: 
+    - ansible_facts.services["kibana.service"] is defined 
+    - ansible_facts.services["kibana.service"].state == "stopped"
+    - ansible_facts.services["kibana.service"].status == "failed"
+  listen: "restart_kibana"

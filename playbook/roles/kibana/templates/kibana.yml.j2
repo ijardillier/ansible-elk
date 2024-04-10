@@ -1,0 +1,101 @@
+# =================== System: Kibana Server ===================
+#server.port: 5601
+server.host: "0.0.0.0"
+server.name: "kibana"
+server.publicBaseUrl: "http://kbn:5601"
+
+# =================== System: Kibana Server (Optional) ===================
+#server.ssl.enabled: false
+#server.ssl.certificate: /path/to/your/server.crt
+#server.ssl.key: /path/to/your/server.key
+
+# =================== System: Elasticsearch ===================
+elasticsearch.hosts: [{{ groups['elasticsearch'] | map('regex_replace', '^(.*)$', '"https://\\1:9200"') | join(',') }}]
+elasticsearch.username: "kibana_system"
+elasticsearch.password: "{{ account_password.kibana_system }}"
+
+# =================== System: Elasticsearch (Optional) ===================
+elasticsearch.ssl.certificateAuthorities: [ "{{ ca_cert_path }}" ]
+#elasticsearch.ssl.certificate: /path/to/your/client.crt
+#elasticsearch.ssl.key: /path/to/your/client.key
+#elasticsearch.ssl.verificationMode: full
+
+# =================== Security ===================
+xpack.security.audit.enabled: true # License needed
+xpack.security.encryptionKey: "{{ security_encryptionKey }}"
+
+# =================== Alerting and action ===================
+xpack.encryptedSavedObjects.encryptionKey: "{{ encryptedSavedObjects_encryptionKey }}"
+
+# =================== Reporting ===================
+xpack.reporting.encryptionKey: "{{ reporting_encryptionKey }}"
+
+# =================== System: Logging ===================
+logging.root.level: info
+
+logging:
+  appenders:
+    file:
+      type: file
+      fileName: /var/log/kibana/kibana.log
+      layout:
+        type: json
+  root:
+    appenders:
+      - default
+      - file
+#  layout:
+#    type: json
+
+logging.loggers:
+  - name: elasticsearch.query
+    level: info
+  - name: http.server.response
+    level: info
+  - name: metrics.ops
+    level: info
+
+# =================== Monitoring ===================
+
+monitoring.ui.ccs.enabled: false
+
+# ====================== Fleet =====================
+
+xpack.fleet.agents.fleet_server.hosts: ["https://fs:8220"]
+
+xpack.fleet.packages:
+  - name: fleet_server 
+    version: latest 
+
+xpack.fleet.agentPolicies:
+  - name: Fleet Server Policy 
+    id: fleet_server_policy
+    description: Default Fleet Server policy
+    namespace: default
+    monitoring_enabled: ['logs', 'metrics']
+    is_managed: false
+    is_default_fleet_server: true
+    package_policies:
+      - name: fleet_server
+        package:
+          name: fleet_server
+        inputs:
+          - type: fleet-server
+            keep_enabled: true
+            vars:
+              - name: host
+                value: 0.0.0.0
+                frozen: false
+              - name: port
+                value: 8220
+                frozen: false
+
+xpack.fleet.outputs:
+  - id: fleet-default-output
+    name: Default output
+    type: elasticsearch
+    hosts: [{{ groups['elasticsearch'] | map('regex_replace', '^(.*)$', '"https://\\1:9200"') | join(',') }}]
+    is_default: true
+    is_default_monitoring: true
+    config:
+      ssl.certificate_authorities: ["/usr/share/elastic-agent/certs/ca/ca.crt"]

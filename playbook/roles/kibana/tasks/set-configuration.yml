@@ -1,0 +1,9 @@
+---
+- name: "Create the kibana config file"
+  template: 
+    src: templates/kibana.yml.j2
+    dest: "{{ etc_path }}/kibana.yml"
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+    mode: '0660'
+  notify: restart_kibana
