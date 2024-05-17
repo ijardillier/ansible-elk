@@ -7,10 +7,10 @@
     group: "{{ group }}"
     mode: 0750
 
-- name: "Copy ca.crt from /tmp on controller to {{ ca_cert_path }}"
+- name: "Copy certificate crt and key from /tmp on controller to {{ certs_path }}"
   copy:
-    src: "/tmp/{{ elastic_stack.ca_name }}/ca/ca.crt"
-    dest: "{{ ca_cert_path }}"
+    src: "/tmp/{{ cert_name }}/{{ cert_name }}/"
+    dest: "{{ certs_path }}"
     owner: "{{ owner }}"
     group: "{{ group }}"
-  notify: restart_kibana
+  notify: restart_fleet_server

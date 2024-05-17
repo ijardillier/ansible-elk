@@ -13,8 +13,8 @@ share_path: /usr/share/elasticsearch
 service_path: /etc/systemd/system/elasticsearch.service.d
 
 certs_path: "{{ etc_path }}/certs"
-transport_cert: "elastic-certificates"
-http_cert: "elastic-certificates"
+transport_cert: "elastic-cert"
+http_cert: "elastic-cert"
 
 ca_cert_path: "{{ certs_path }}/{{ elastic_stack.ca_name }}.crt"
 ca_key_path: "{{ certs_path }}/{{ elastic_stack.ca_name }}.key"

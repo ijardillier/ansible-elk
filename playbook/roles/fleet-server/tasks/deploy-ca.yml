@@ -13,4 +13,5 @@
     dest: "{{ ca_cert_path }}"
     owner: "{{ owner }}"
     group: "{{ group }}"
-  notify: restart_kibana
+  notify: restart_fleet_server
+

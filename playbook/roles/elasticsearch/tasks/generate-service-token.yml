@@ -9,6 +9,7 @@
     validate_certs: false
     headers:
       Content-Type: "application/json"
+  delegate_to: es01
 
 - name: "Create service token for {{ service_name }} if already exists"
   uri:
@@ -21,10 +22,11 @@
     headers:
       Content-Type: "application/json"
   register: result
+  delegate_to: es01
 
-- name: "Service token for {{ service_name }}"
-  debug:
-    var: result.json.token.value
+# - name: "Service token for {{ service_name }}"
+#   debug:
+#     var: result.json.token.value
 
 - set_fact:
     generated_token: "{{ result.json.token.value }}"

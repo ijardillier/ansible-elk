@@ -1,0 +1,19 @@
+---
+- name: "Create certificate directory in /tmp on controller"
+  file:
+    path: "/tmp/{{ cert_name }}"
+    state: directory
+  delegate_to: 127.0.0.1
+
+- name: Install latest version of unzip on controller
+  package:
+    name: unzip
+    state: latest
+  delegate_to: 127.0.0.1
+
+- name: "Extract certificate on controller"
+  unarchive:
+    remote_src: true
+    src: "/tmp/{{ cert_name }}.zip"
+    dest: "/tmp/{{ cert_name }}"
+  delegate_to: 127.0.0.1

@@ -1,0 +1,11 @@
+---
+etc_path: /etc/elastic-agent
+share_path: /usr/share/elastic-agent
+
+certs_path: "{{ etc_path }}/certs"
+transport_cert: "fleet-cert"
+
+ca_cert_path: "{{ certs_path }}/{{ elastic_stack.ca_name }}.crt"
+
+owner: root
+group: root

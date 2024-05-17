@@ -4,13 +4,16 @@
     path: "/tmp/{{ elastic_stack.ca_name }}.zip"
   register: result
   changed_when: no
+  delegate_to: es01
 
 - name: "Generate CA {{ elastic_stack.ca_name }}"
   shell: "{{ share_path }}/bin/elasticsearch-certutil ca --pem --out /tmp/{{ elastic_stack.ca_name }}.zip --pass {{ elastic_stack.ca_pass }} --silent"
   when: result is not undefined and result.stat.exists == false
+  delegate_to: es01
 
 - name: Copy CA to controller
   fetch: 
     src: "/tmp/{{ elastic_stack.ca_name }}.zip"
     dest: "/tmp/"
     flat: true
+  delegate_to: es01

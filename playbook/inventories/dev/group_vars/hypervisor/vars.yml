@@ -22,3 +22,19 @@ vms:
       disk: 10G
       mem: 1024
       cpu: 1
+    - name: fleet-server
+      disk: 10G
+      mem: 512
+      cpu: 1
+    # - name: apm-server
+    #   disk: 10G
+    #   mem: 512
+    #   cpu: 1
+    # - name: logstash
+    #   disk: 10G
+    #   mem: 1024
+    #   cpu: 1
+    # - name: search
+    #   disk: 10G
+    #   mem: 1024
+    #   cpu: 1

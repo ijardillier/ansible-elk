@@ -1,7 +1,7 @@
 ---
 - name: Collect facts for tags needing them (gathering facts is not done when using tags)
   hosts: all
-  tags: [cfg, certs] 
+  tags: [os, es, kbn, mon, fs, cfg, certs, pwd] 
   tasks:
     - setup:
         gather_timeout: 10 
@@ -21,7 +21,8 @@
   roles:
     - { role: elasticsearch, mode: apply-prerequisites }
     - { role: tooling/repository, mode: "add-elastic_{{ ansible_os_family }}" }
-    - { role: tooling/service, mode: install, service_name: elasticsearch, service_version: "{{ elastic_stack.version }}" }
+    - { role: tooling/service, mode: install, 
+          service_name: elasticsearch, service_version: "{{ elastic_stack.version }}" }
     - { role: elasticsearch, mode: service-override }
     - { role: tooling/repository, mode: "remove-elastic_{{ ansible_os_family }}" }
     - { role: elasticsearch, mode: set-configuration, tags: cfg }
@@ -29,16 +30,14 @@
     - { role: tooling/certificate, mode: extract-ca, tags: certs }
     - { role: elasticsearch, mode: deploy-ca, tags: certs }
     - { role: elasticsearch, mode: clean-auto-generated-certs, tags: certs }
-    - { role: elasticsearch, mode: generate-certs, tags: certs }
+    - { role: elasticsearch, mode: generate-certs, tags: certs, 
+          cert_ip: "{{ hostvars[ansible_host]['ansible_default_ipv4']['address'] }}",
+          cert_dns: "{{ ansible_host }}",
+          cert_name: "{{ transport_cert }}" }
+    - { role: tooling/certificate, mode: extract-cert, tags: certs }
+    - { role: elasticsearch, mode: deploy-certs, tags: certs }
     - { role: tooling/service, mode: start, service_name: elasticsearch }
     - { role: elasticsearch, mode: wait-for-start }
-
-# - name: "Install CA on Hypervisor"
-#   hosts: hypervisor
-#   become: true
-#   tags: [ca]
-#   roles:
-#     - { role: tooling/certificate, mode: install-ca, tags: certs }
 
 - name: "Configure passwords"
   hosts: elasticsearch[0]
@@ -58,13 +57,12 @@
     - { role: tooling/service, mode: install, service_name: kibana, service_version: "{{ elastic_stack.version }}" }
     - { role: tooling/repository, mode: "remove-elastic_{{ ansible_os_family }}" }
     - { role: kibana, mode: set-configuration, tags: cfg }
-    - { role: tooling/certificate, mode: extract-ca, tags: certs }
     - { role: kibana, mode: deploy-ca, tags: certs }
     - { role: tooling/service, mode: start, service_name: kibana }
     - { role: kibana, mode: wait-for-start }
 
 - name: "Deploy monitoring"
-  hosts: all,!hypervisor
+  hosts: elasticsearch,kibana
   become: true
   tags: [mon]
   roles:    
@@ -79,3 +77,29 @@
     - { role: monitoring/metricbeat, mode: deploy-ca, tags: certs }
     - { role: tooling/service, mode: start, service_name: filebeat }
     - { role: tooling/service, mode: start, service_name: metricbeat }
+
+# - name: "Prerequisites for fleet server"
+#   hosts: elasticsearch[0]
+#   become: true
+#   tags: [fs]
+#   roles:
+#     - { role: elasticsearch, mode: generate-service-token, service_name: fleet-server }
+    
+- name: "Deploy fleet server"
+  hosts: fleet_server
+  become: true
+  tags: [fs]
+  roles:
+    - { role: tooling/repository, mode: "add-elastic_{{ ansible_os_family }}" }
+    - { role: tooling/service, mode: install, service_name: elastic-agent, service_version: "{{ elastic_stack.version }}" }
+    - { role: tooling/repository, mode: "remove-elastic_{{ ansible_os_family }}" }
+    - { role: fleet-server, mode: deploy-ca, tags: certs }   
+    - { role: elasticsearch, mode: generate-certs, tags: certs, 
+          cert_ip: "{{ hostvars[ansible_host]['ansible_default_ipv4']['address'] }}",
+          cert_dns: "{{ ansible_host }}",
+          cert_name: "{{ transport_cert }}" }
+    - { role: tooling/certificate, mode: extract-cert, tags: certs }
+    - { role: fleet-server, mode: deploy-certs, tags: certs } 
+    - { role: elasticsearch, mode: generate-service-token, service_name: fleet-server }
+    - { role: fleet-server, mode: enroll-agent, service_token: "{{ generated_token }}" }
+    - { role: tooling/service, mode: start, service_name: elastic-agent }

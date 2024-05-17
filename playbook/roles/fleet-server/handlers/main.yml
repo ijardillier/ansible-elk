@@ -1,0 +1,23 @@
+---
+- name: restart_fleet_server_check_existing
+  service_facts:
+  listen: "restart_fleet_server"
+
+- name: restart_fleet_server_if_exists_and_running
+  service: 
+    name: elastic-agent
+    state: restarted
+  when: 
+    - ansible_facts.services["elastic-agent.service"] is defined 
+    - ansible_facts.services["elastic-agent.service"].state == "running"
+  listen: "restart_fleet_server"
+
+- name: restart_fleet_server_if_exists_and_failed
+  service: 
+    name: elastic-agent
+    state: restarted
+  when: 
+    - ansible_facts.services["elastic-agent.service"] is defined 
+    - ansible_facts.services["elastic-agent.service"].state == "stopped"
+    - ansible_facts.services["elastic-agent.service"].status == "failed"
+  listen: "restart_fleet_server"

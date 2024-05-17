@@ -1,4 +1,0 @@
----
-- name: update_trusted_ca
-  shell: /usr/sbin/update-ca-certificates
-  listen: "update_trusted_ca"

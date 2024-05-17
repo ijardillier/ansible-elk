@@ -1,0 +1,44 @@
+---
+
+- name: "Service token for {{ service_name }}"
+  debug:
+    msg: "elastic-agent enroll -f --url=https://fs01:8220 --fleet-server-es=https://es01:9200 --fleet-server-policy=fleet_server_policy --fleet-server-port=8220 --fleet-server-service-token={{ service_token }} --fleet-server-es-ca={{ ca_cert_path }} --certificate-authorities={{ ca_cert_path }} --fleet-server-cert={{ certs_path }}/{{ cert_name }}.crt --fleet-server-cert-key={{ certs_path }}/{{ cert_name }}.key"
+
+- name: "Enroll elastic agent"
+  shell: "elastic-agent enroll -f --url=https://fs01:8220 --fleet-server-es=https://es01:9200 --fleet-server-policy=fleet_server_policy --fleet-server-port=8220 --fleet-server-service-token={{ service_token }} --fleet-server-es-ca={{ ca_cert_path }} --certificate-authorities={{ ca_cert_path }} --fleet-server-cert={{ certs_path }}/{{ cert_name }}.crt --fleet-server-cert-key={{ certs_path }}/{{ cert_name }}.key"
+  register: result
+
+- name: Enrollment result
+  debug:
+    var: result.stdout
+
+
+# sudo ./elastic-agent install --url=https://fleet-server:8220 \
+#   --fleet-server-es=https://es01:9200 \
+#   --fleet-server-service-token=AAEAAWVsYXN0aWMvZmxlZXQtc2VydmVyL3Rva2VuLTE3MTU5Mzk2Njc4MzA6RUxRRmUzWDBULTI2S2RxM2NYNHJOdw \
+#   --fleet-server-policy=fleet_server_policy \
+#   --certificate-authorities=<PATH_TO_CA> \
+#   --fleet-server-es-ca=<PATH_TO_ES_CERT> \
+#   --fleet-server-cert=<PATH_TO_FLEET_SERVER_CERT> \
+#   --fleet-server-cert-key=<PATH_TO_FLEET_SERVER_CERT_KEY> \
+#   --fleet-server-port=8220
+
+
+# This command will enroll the Elastic Agent into Fleet.
+
+# Usage:
+#   elastic-agent enroll [flags]
+
+# Flags:
+#   -p, --ca-sha256 string                                Comma separated list of certificate authorities hash pins used for certificate verifications
+#   -a, --certificate-authorities string                  Comma separated list of root certificate for server verifications
+#       --daemon-timeout duration                         Timeout waiting for Elastic Agent daemon
+#       --delay-enroll                                    Delays enrollment to occur on first start of the Elastic Agent service
+#   -t, --enrollment-token string                         Enrollment token to use to enroll Agent into Fleet
+#       --fleet-server-cert string                        Certificate to use for exposed Fleet Server HTTPS endpoint
+#       --fleet-server-cert-key string                    Private key to use for exposed Fleet Server HTTPS endpoint
+#       --fleet-server-cert-key-passphrase string         Path for private key passphrase file used to decrypt certificate key
+#       --fleet-server-host string                        Fleet Server HTTP binding host (overrides the policy)
+#       --fleet-server-insecure-http                      Expose Fleet Server over HTTP (not recommended; insecure)
+#   -f, --force                                           Force overwrite the current and do not prompt for confirmation
+#   -i, --insecure                                        Allow insecure connection to fleet-server

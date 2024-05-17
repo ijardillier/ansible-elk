@@ -46,8 +46,8 @@ xpack.security.http.ssl:
   enabled: true
   #keystore.path: "certs/{{ http_cert }}.p12"
   certificate_authorities: certs/{{ elastic_stack.ca_name }}.crt
-  certificate: certs/{{ http_cert }}.crt
-  key: certs/{{ http_cert }}.key
+  certificate: "certs/{{ http_cert }}-{{ ansible_host }}.crt"
+  key: certs/{{ http_cert }}-{{ ansible_host }}.key
 
 # Enable encryption and mutual authentication between cluster nodes
 xpack.security.transport.ssl:
@@ -55,5 +55,5 @@ xpack.security.transport.ssl:
   #keystore.path: "certs/{{ transport_cert }}.p12"
   #truststore.path: "certs/{{ transport_cert }}.p12"  
   certificate_authorities: certs/{{ elastic_stack.ca_name }}.crt
-  certificate: certs/{{ transport_cert }}.crt
-  key: certs/{{ transport_cert }}.key
+  certificate: certs/{{ transport_cert }}-{{ ansible_host }}.crt
+  key: certs/{{ transport_cert }}-{{ ansible_host }}.key
