@@ -1,19 +1,22 @@
 ---
 - set_fact:
+    cert_ip: "{{ cert_ip }}"
+    cert_dns: "{{ cert_dns }}"
     cert_name: "{{ cert_name }}-{{ ansible_host }}"
 
 - name: "Generating certificate for"
   debug:
     msg: "{{ cert_dns }} ({{ cert_ip }}): {{ cert_name }}"
+  delegate_to: es01
 
-- name: "Check if certificate already exists in /tmp"
+- name: "Check if certificate already exists in /tmp on es01"
   stat:
     path: "/tmp/{{ cert_name }}.zip"
   register: result
   changed_when: no
   delegate_to: es01
 
-- name: Generate certificate
+- name: Generate certificate on es01
   shell: "{{ share_path }}/bin/elasticsearch-certutil cert --pem --ca-cert {{ ca_cert_path }} --ca-key {{ ca_key_path }} \
       --ca-pass {{ elastic_stack.ca_pass }} --dns localhost,{{ cert_dns }} --ip 127.0.0.1,{{ cert_ip }} --name {{ cert_name }} --out /tmp/{{ cert_name }}.zip --silent"
   when: result is not undefined and result.stat.exists == false

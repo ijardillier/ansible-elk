@@ -1,5 +1,5 @@
 ---
-- name: "Create {{ elastic_stack.ca_name }} directory in /tmp on controller"
+- name: "Create CA directory in /tmp on controller"
   file:
     path: "/tmp/{{ elastic_stack.ca_name }}"
     state: directory
@@ -11,7 +11,7 @@
     state: latest
   delegate_to: 127.0.0.1
 
-- name: "Extract /tmp/{{ elastic_stack.ca_name }}.zip on controller"
+- name: "Extract CA in /tmp on controller"
   unarchive:
     remote_src: true
     src: "/tmp/{{ elastic_stack.ca_name }}.zip"

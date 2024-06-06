@@ -1,12 +1,12 @@
 ---
-- name: "Check if /tmp/{{ elastic_stack.ca_name }}.zip already exists"
+- name: "Check if CA already exists in /tmp on es01"
   stat:
     path: "/tmp/{{ elastic_stack.ca_name }}.zip"
   register: result
   changed_when: no
   delegate_to: es01
 
-- name: "Generate CA {{ elastic_stack.ca_name }}"
+- name: "Generate CA on es01"
   shell: "{{ share_path }}/bin/elasticsearch-certutil ca --pem --out /tmp/{{ elastic_stack.ca_name }}.zip --pass {{ elastic_stack.ca_pass }} --silent"
   when: result is not undefined and result.stat.exists == false
   delegate_to: es01

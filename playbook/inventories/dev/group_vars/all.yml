@@ -1,7 +1,7 @@
 ---
 elastic_stack:
   repository: 8.x
-  version: 8.9.1
+  version: 8.14.0
   ca_name: "elastic-stack-ca"
   ca_pass: "changeme"
 
