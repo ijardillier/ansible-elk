@@ -9,7 +9,7 @@
 
 - name: "Copy certificate crt and key from /tmp on controller to {{ certs_path }}"
   copy:
-    src: "/tmp/{{ cert_name }}/{{ cert_name }}/"
+    src: "/tmp/elastic/{{ cert_name_host }}/"
     dest: "{{ certs_path }}"
     owner: "{{ owner }}"
     group: "{{ group }}"

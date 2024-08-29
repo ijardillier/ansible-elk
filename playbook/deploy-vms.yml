@@ -9,7 +9,6 @@
 
 - name: "Provision VM on Hypervisor"
   hosts: hypervisor
-  become: true
   tags: [vm]
   roles:
     - { role: vm, mode: create-ssh-key }

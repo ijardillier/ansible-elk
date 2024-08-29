@@ -1,7 +1,7 @@
 ---
 - name: "Create certificate directory in /tmp on controller"
   file:
-    path: "/tmp/{{ cert_name }}"
+    path: "/tmp/elastic"
     state: directory
   delegate_to: 127.0.0.1
 
@@ -14,6 +14,6 @@
 - name: "Extract certificate in /tmp on controller"
   unarchive:
     remote_src: true
-    src: "/tmp/{{ cert_name }}.zip"
-    dest: "/tmp/{{ cert_name }}"
+    src: "/tmp/{{ cert_name_host }}.zip"
+    dest: "/tmp/elastic"
   delegate_to: 127.0.0.1

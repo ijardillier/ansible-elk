@@ -21,8 +21,7 @@
   roles:
     - { role: elasticsearch, mode: apply-prerequisites }
     - { role: tooling/repository, mode: "add-elastic_{{ ansible_os_family }}" }
-    - { role: tooling/service, mode: install, 
-          service_name: elasticsearch, service_version: "{{ elastic_stack.version }}" }
+    - { role: tooling/service, mode: install, service_name: elasticsearch, service_version: "{{ elastic_stack.version }}" }
     - { role: elasticsearch, mode: service-override }
     - { role: tooling/repository, mode: "remove-elastic_{{ ansible_os_family }}" }
     - { role: elasticsearch, mode: set-configuration, tags: cfg }
@@ -30,10 +29,7 @@
     - { role: tooling/certificate, mode: extract-ca, tags: certs }
     - { role: elasticsearch, mode: deploy-ca, tags: certs }
     - { role: elasticsearch, mode: clean-auto-generated-certs, tags: certs }
-    - { role: elasticsearch, mode: generate-certs, tags: certs, 
-          cert_ip: "{{ hostvars[ansible_host]['ansible_default_ipv4']['address'] }}",
-          cert_dns: "{{ ansible_host }}",
-          cert_name: "{{ transport_cert }}" }
+    - { role: elasticsearch, mode: generate-certs, tags: certs, cert_name: "{{ transport_cert }}" }
     - { role: tooling/certificate, mode: extract-cert, tags: certs }
     - { role: elasticsearch, mode: deploy-certs, tags: certs }
     - { role: tooling/service, mode: start, service_name: elasticsearch }
@@ -93,10 +89,7 @@
     - { role: tooling/service, mode: install, service_name: elastic-agent, service_version: "{{ elastic_stack.version }}" }
     - { role: tooling/repository, mode: "remove-elastic_{{ ansible_os_family }}" }
     - { role: fleet-server, mode: deploy-ca, tags: certs }   
-    - { role: elasticsearch, mode: generate-certs, tags: certs, 
-          cert_ip: "{{ hostvars[ansible_host]['ansible_default_ipv4']['address'] }}",
-          cert_dns: "{{ ansible_host }}",
-          cert_name: "{{ transport_cert }}" }
+    - { role: elasticsearch, mode: generate-certs, tags: certs, cert_name: "{{ transport_cert }}" }
     - { role: tooling/certificate, mode: extract-cert, tags: certs }
     - { role: fleet-server, mode: deploy-certs, tags: certs } 
     - { role: elasticsearch, mode: generate-service-token, service_name: fleet-server }

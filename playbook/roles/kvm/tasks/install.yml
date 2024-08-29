@@ -2,7 +2,6 @@
 - name: Install latest version of KVM (and QEMU) System components
   package:
     name:
-    - qemu 
     - qemu-kvm 
     - libvirt-daemon-system
     - libvirt-clients
@@ -13,6 +12,7 @@
     - cloud-image-utils
     - guestfs-tools
     - openssh-client
+    - python3-lxml
     state: latest
 
 - name: Start and enable service "libvirtd"

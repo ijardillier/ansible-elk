@@ -1,7 +1,7 @@
 ---
 - name: "Create CA directory in /tmp on controller"
   file:
-    path: "/tmp/{{ elastic_stack.ca_name }}"
+    path: "/tmp/elastic"
     state: directory
   delegate_to: 127.0.0.1
 
@@ -15,5 +15,5 @@
   unarchive:
     remote_src: true
     src: "/tmp/{{ elastic_stack.ca_name }}.zip"
-    dest: "/tmp/{{ elastic_stack.ca_name }}"
+    dest: "/tmp/elastic"
   delegate_to: 127.0.0.1

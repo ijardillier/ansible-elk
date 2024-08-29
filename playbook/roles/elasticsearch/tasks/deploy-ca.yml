@@ -9,7 +9,7 @@
 
 - name: "Copy ca.crt from /tmp on controller to {{ ca_cert_path }}"
   copy:
-    src: "/tmp/{{ elastic_stack.ca_name }}/ca/ca.crt"
+    src: "/tmp/elastic/ca/ca.crt"
     dest: "{{ ca_cert_path }}"
     owner: "{{ owner }}"
     group: "{{ group }}"
@@ -17,7 +17,7 @@
 
 - name: "Copy ca.key from /tmp on controller to {{ ca_key_path }}"
   copy:
-    src: "/tmp/{{ elastic_stack.ca_name }}/ca/ca.key"
+    src: "/tmp/elastic/ca/ca.key"
     dest: "{{ ca_key_path }}"
     owner: "{{ owner }}"
     group: "{{ group }}"

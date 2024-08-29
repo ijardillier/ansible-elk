@@ -28,6 +28,7 @@
   shell: 
     cmd: "cat /tmp/virsh_net_{{ vms.network_name }}.xml | grep {{ vms.domain_name }}"
   register: domain_already_configured
+  failed_when: domain_already_configured.rc not in [ 0, 1 ]
   changed_when: no
 
 - name: "Add domain to network {{ vms.network_name }}"

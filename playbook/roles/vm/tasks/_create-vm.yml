@@ -15,6 +15,7 @@
   changed_when: no
 
 - name: "Create and resize the image for {{ current_vm_name }}"
+  become: true
   shell: qemu-img create -b {{ libvirt_images_dir }}/{{ base_image_name }} -F qcow2 -f qcow2 {{ current_vm_dir }}/{{ current_vm_name }}.qcow2 {{ current_vm_specs['disk'] }}
 
 - name: Get ssh public key
@@ -23,12 +24,14 @@
   changed_when: no
 
 - name: "Create cloud_init.cfg template for {{ current_vm_name }}"
+  become: true
   template:
     src: templates/cloud_init.cfg.j2
     dest: "{{ current_vm_dir }}/cloud_init.cfg"
     mode: '0644'
     
 - name: "Create cloud-config image for {{ current_vm_name }}"
+  become: true
   shell:
     cmd: >
         cloud-localds
