@@ -3,6 +3,7 @@
   set_fact: current_vm_dir="{{ libvirt_vms_dir }}/{{ current_vm_name }}"
 
 - name: "Create VM directory for {{ current_vm_name }}"
+  become: true
   file:
     path: "{{ current_vm_dir }}"
     state: directory

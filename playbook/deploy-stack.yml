@@ -29,7 +29,7 @@
     - { role: tooling/certificate, mode: extract-ca, tags: certs }
     - { role: elasticsearch, mode: deploy-ca, tags: certs }
     - { role: elasticsearch, mode: clean-auto-generated-certs, tags: certs }
-    - { role: elasticsearch, mode: generate-certs, tags: certs, cert_name: "{{ transport_cert }}" }
+    - { role: elasticsearch, mode: generate-certs, tags: certs }
     - { role: tooling/certificate, mode: extract-cert, tags: certs }
     - { role: elasticsearch, mode: deploy-certs, tags: certs }
     - { role: tooling/service, mode: start, service_name: elasticsearch }
@@ -72,14 +72,7 @@
     - { role: monitoring/metricbeat, mode: deploy-ca, tags: certs }
     - { role: tooling/service, mode: start, service_name: filebeat }
     - { role: tooling/service, mode: start, service_name: metricbeat }
-
-# - name: "Prerequisites for fleet server"
-#   hosts: elasticsearch[0]
-#   become: true
-#   tags: [fs]
-#   roles:
-#     - { role: elasticsearch, mode: generate-service-token, service_name: fleet-server }
-    
+   
 - name: "Deploy fleet server"
   hosts: fleet_server
   become: true
@@ -89,9 +82,25 @@
     - { role: tooling/service, mode: install, service_name: elastic-agent, service_version: "{{ elastic_stack.version }}" }
     - { role: tooling/repository, mode: "remove-elastic_{{ ansible_os_family }}" }
     - { role: fleet-server, mode: deploy-ca, tags: certs }   
-    - { role: elasticsearch, mode: generate-certs, tags: certs, cert_name: "{{ transport_cert }}" }
+    - { role: elasticsearch, mode: generate-certs, tags: certs }
     - { role: tooling/certificate, mode: extract-cert, tags: certs }
     - { role: fleet-server, mode: deploy-certs, tags: certs } 
     - { role: elasticsearch, mode: generate-service-token, service_name: fleet-server }
     - { role: fleet-server, mode: enroll-agent, service_token: "{{ generated_token }}" }
+    - { role: tooling/service, mode: start, service_name: elastic-agent }
+
+- name: "Deploy APM server"
+  hosts: apm_server
+  become: true
+  tags: [as]
+  roles:
+    - { role: tooling/repository, mode: "add-elastic_{{ ansible_os_family }}" }
+    - { role: tooling/service, mode: install, service_name: elastic-agent, service_version: "{{ elastic_stack.version }}" }
+    - { role: tooling/repository, mode: "remove-elastic_{{ ansible_os_family }}" }
+    - { role: apm-server, mode: deploy-ca, tags: certs }   
+    - { role: elasticsearch, mode: generate-certs, tags: certs }
+    - { role: tooling/certificate, mode: extract-cert, tags: certs }
+    - { role: apm-server, mode: deploy-certs, tags: certs } 
+    - { role: elasticsearch, mode: generate-service-token, service_name: apm-server }
+    - { role: apm-server, mode: enroll-agent, service_token: "{{ generated_token }}" }
     - { role: tooling/service, mode: start, service_name: elastic-agent }

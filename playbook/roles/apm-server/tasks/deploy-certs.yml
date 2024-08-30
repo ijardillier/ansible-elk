@@ -13,7 +13,7 @@
     dest: "{{ cert_path }}"
     owner: "{{ owner }}"
     group: "{{ group }}"
-  notify: restart_elasticsearch
+  notify: restart_apm_server
 
 - name: "Copy .key from /tmp on controller to {{ ca_key_path }}"
   copy:
@@ -21,4 +21,4 @@
     dest: "{{ key_path }}"
     owner: "{{ owner }}"
     group: "{{ group }}"
-  notify: restart_elasticsearch
+  notify: restart_apm_server

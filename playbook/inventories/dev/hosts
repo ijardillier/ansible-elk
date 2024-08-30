@@ -13,8 +13,8 @@ kbn01 ansible_user=ubuntu ansible_host_key_checking=false
 [fleet_server]
 fs01 ansible_user=ubuntu ansible_host_key_checking=false
 
-# [apm_server]
-# as01 ansible_user=ubuntu ansible_host_key_checking=false
+[apm_server]
+as01 ansible_user=ubuntu ansible_host_key_checking=false
 
 # [logstash]
 # ls01 ansible_user=ubuntu ansible_host_key_checking=false

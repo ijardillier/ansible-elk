@@ -44,16 +44,16 @@ xpack.security.enrollment.enabled: false
 # Enable encryption for HTTP API client connections, such as Kibana, Logstash, and Agents
 xpack.security.http.ssl:
   enabled: true
-  #keystore.path: "certs/{{ http_cert }}.p12"
+  #keystore.path: "certs/{{ elastic_stack.cert_name }}.p12"
   certificate_authorities: certs/{{ elastic_stack.ca_name }}.crt
-  certificate: "certs/{{ http_cert }}-{{ ansible_host }}.crt"
-  key: certs/{{ http_cert }}-{{ ansible_host }}.key
+  certificate: "certs/{{ elastic_stack.cert_name }}.crt"
+  key: certs/{{ elastic_stack.cert_name }}.key
 
 # Enable encryption and mutual authentication between cluster nodes
 xpack.security.transport.ssl:
   enabled: true
-  #keystore.path: "certs/{{ transport_cert }}.p12"
-  #truststore.path: "certs/{{ transport_cert }}.p12"  
+  #keystore.path: "certs/{{ elastic_stack.cert_name }}.p12"
+  #truststore.path: "certs/{{ elastic_stack.cert_name }}.p12"  
   certificate_authorities: certs/{{ elastic_stack.ca_name }}.crt
-  certificate: certs/{{ transport_cert }}-{{ ansible_host }}.crt
-  key: certs/{{ transport_cert }}-{{ ansible_host }}.key
+  certificate: certs/{{ elastic_stack.cert_name }}.crt
+  key: certs/{{ elastic_stack.cert_name }}.key

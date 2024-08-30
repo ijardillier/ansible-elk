@@ -7,10 +7,18 @@
     group: "{{ group }}"
     mode: 0750
 
-- name: "Copy certificate crt and key from /tmp on controller to {{ certs_path }}"
+- name: "Copy crt from /tmp on controller to {{ ca_cert_path }}"
   copy:
-    src: "/tmp/elastic/{{ cert_name_host }}/"
-    dest: "{{ certs_path }}"
+    src: "/tmp/elastic/{{ cert_name_host }}/{{ cert_name_host }}.crt"
+    dest: "{{ cert_path }}"
+    owner: "{{ owner }}"
+    group: "{{ group }}"
+  notify: restart_fleet_server
+
+- name: "Copy .key from /tmp on controller to {{ ca_key_path }}"
+  copy:
+    src: "/tmp/elastic/{{ cert_name_host }}/{{ cert_name_host }}.key"
+    dest: "{{ key_path }}"
     owner: "{{ owner }}"
     group: "{{ group }}"
   notify: restart_fleet_server

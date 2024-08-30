@@ -2,8 +2,9 @@
 elastic_stack:
   repository: 8.x
   version: 8.14.3
-  ca_name: "elastic-stack-ca"
+  ca_name: "elastic-ca"
   ca_pass: "changeme"
+  cert_name: "elastic-cert"
 
 cluster_name: elastic_dev
 

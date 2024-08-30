@@ -64,8 +64,14 @@ monitoring.ui.ccs.enabled: false
 xpack.fleet.agents.fleet_server.hosts: [{{ groups['fleet_server'] | map('regex_replace', '^(.*)$', '"https://\\1:8220"') | join(',') }}]
 
 xpack.fleet.packages:
+  - name: system 
+    version: latest
   - name: fleet_server 
     version: latest 
+  - name: elastic_agent
+    version: latest
+  - name: apm
+    version: latest
 
 xpack.fleet.agentPolicies:
   - name: Fleet Server Policy 
@@ -76,6 +82,9 @@ xpack.fleet.agentPolicies:
     is_managed: false
     is_default_fleet_server: true
     package_policies:
+      - name: system-1
+        package:
+          name: system
       - name: fleet_server
         package:
           name: fleet_server
@@ -88,6 +97,42 @@ xpack.fleet.agentPolicies:
                 frozen: false
               - name: port
                 value: 8220
+                frozen: false
+  - name: APM Server Policy
+    id: apm_server_policy
+    description: Default APM Server policy
+    namespace: default
+    monitoring_enabled: ['logs', 'metrics']
+    is_managed: false
+    is_default: false
+    package_policies:
+      - name: system-2
+        package:
+          name: system
+      - name: apm
+        package:
+          name: apm
+        inputs:
+          - type: apm
+            keep_enabled: true
+            vars:
+              - name: host
+                value: 0.0.0.0:8200
+                frozen: false
+              - name: url
+                value: "https://localhost:8200"
+                frozen: false
+              - name: enable_rum
+                value: true
+                frozen: false
+              - name: tls_enabled
+                value: true
+                frozen: false
+              - name: tls_certificate
+                value: "/etc/elastic-agent/certs/{{ elastic_stack.cert_name }}.crt"
+                frozen: false
+              - name: tls_key
+                value: "/etc/elastic-agent/certs/{{ elastic_stack.cert_name }}.key"
                 frozen: false
 
 xpack.fleet.outputs:

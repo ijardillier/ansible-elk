@@ -2,10 +2,10 @@
 
 - name: "Enroll elastic agent"
   debug:
-    msg: "elastic-agent enroll -f --url=https://fs01:8220 --fleet-server-es=https://es01:9200 --fleet-server-policy=fleet_server_policy --fleet-server-host=0.0.0.0 --fleet-server-port=8220 --fleet-server-service-token={{ service_token }} --fleet-server-es-ca={{ ca_cert_path }} --certificate-authorities={{ ca_cert_path }} --fleet-server-cert={{ certs_path }}/{{ cert_name }}-{{ ansible_host }}.crt --fleet-server-cert-key={{ certs_path }}/{{ cert_name }}-{{ ansible_host }}.key"
+    msg: "elastic-agent enroll -f --url=https://fs01:8220 --fleet-server-es=https://es01:9200 --fleet-server-policy=fleet_server_policy --fleet-server-host=0.0.0.0 --fleet-server-port=8220 --fleet-server-service-token={{ service_token }} --fleet-server-es-ca={{ ca_cert_path }} --certificate-authorities={{ ca_cert_path }} --fleet-server-cert={{ cert_path }} --fleet-server-cert-key={{ key_path }}"
 
 - name: "Enroll elastic agent"
-  shell: "elastic-agent enroll -f --url=https://fs01:8220 --fleet-server-es=https://es01:9200 --fleet-server-policy=fleet_server_policy --fleet-server-host=0.0.0.0 --fleet-server-port=8220 --fleet-server-service-token={{ service_token }} --fleet-server-es-ca={{ ca_cert_path }} --certificate-authorities={{ ca_cert_path }} --fleet-server-cert={{ certs_path }}/{{ cert_name }}-{{ ansible_host }}.crt --fleet-server-cert-key={{ certs_path }}/{{ cert_name }}-{{ ansible_host }}.key"
+  shell: "elastic-agent enroll -f --url=https://fs01:8220 --fleet-server-es=https://es01:9200 --fleet-server-policy=fleet_server_policy --fleet-server-host=0.0.0.0 --fleet-server-port=8220 --fleet-server-service-token={{ service_token }} --fleet-server-es-ca={{ ca_cert_path }} --certificate-authorities={{ ca_cert_path }} --fleet-server-cert={{ cert_path }} --fleet-server-cert-key={{ key_path }}"
   register: result
 
 - name: Enrollment result

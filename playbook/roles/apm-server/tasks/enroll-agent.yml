@@ -1,0 +1,13 @@
+---
+
+- name: "Enroll elastic agent"
+  debug:
+    msg: "elastic-agent enroll -f --url=https://fs01:8220 --enrollmebt-token={{ service_token }} --certificate-authorities={{ ca_cert_path }} --elastic-agent-cert={{ cert_path }} --elastic-agent-cert-key={{ cert_key }}"
+
+- name: "Enroll elastic agent"
+  shell: "elastic-agent enroll -f --url=https://fs01:8220 --enrollmebt-token={{ service_token }} --certificate-authorities={{ ca_cert_path }} --elastic-agent-cert={{ cert_path }} --elastic-agent-cert-key={{ certs_path }}"
+  register: result
+
+- name: Enrollment result
+  debug:
+    var: result.stdout

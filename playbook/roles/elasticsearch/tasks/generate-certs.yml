@@ -2,8 +2,8 @@
 - set_fact:
     cert_ip: "{{ hostvars[ansible_host]['ansible_default_ipv4']['address'] }}"
     cert_dns: "{{ ansible_host }}"
-    cert_name: "{{ cert_name }}"
-    cert_name_host: "{{ cert_name }}-{{ ansible_host }}"
+    cert_name: "{{ elastic_stack.cert_name }}"
+    cert_name_host: "{{ elastic_stack.cert_name }}-{{ ansible_host }}"
 
 - name: "Generating certificate for"
   debug:
